@@ -2,12 +2,6 @@ import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { registerMapsEngineHandler } from './maps-engine'
-import {
-  registerSearchHandler,
-  registerSearchResultHandler,
-  registerExportHandler
-} from './controller'
 import { runMigrations } from './database/database'
 import { registerAutoUpdater } from './updater'
 import { BrowserManager } from './browser-manager'
@@ -49,7 +43,7 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.azharwebdev.mapsleads')
+  electronApp.setAppUserModelId('com.electron.chromium-automation')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -58,10 +52,6 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  registerMapsEngineHandler()
-  registerSearchHandler()
-  registerSearchResultHandler()
-  registerExportHandler()
   BrowserManager.registerHandlers()
 
   runMigrations().then(() => {
@@ -84,6 +74,3 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.

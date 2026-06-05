@@ -1,5 +1,5 @@
-appId: com.azharwebdev.mapsleads
-productName: MapsLeads
+appId: com.electron.chromium-automation
+productName: ChromiumAutomation
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: MapsLeads
+  executableName: ChromiumAutomation
   target:
     - target: nsis
       arch:

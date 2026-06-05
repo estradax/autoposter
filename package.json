@@ -1,7 +1,7 @@
 {
-  "name": "mapsleads",
+  "name": "electron-chromium-automation",
   "version": "1.0.0",
-  "description": "Get leads data from a maps information",
+  "description": "Integration electron app for chromium automation",
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",
@@ -29,15 +29,11 @@
     "@electron-toolkit/utils": "^4.0.0",
     "@libsql/client": "^0.17.2",
     "@puppeteer/browsers": "^2.13.0",
-    "@tanstack/react-query": "^5.99.0",
     "drizzle-orm": "^0.45.2",
     "electron-updater": "^6.3.9",
-    "lucide-react": "^1.8.0",
-    "node-xlsx": "^0.24.0",
     "puppeteer": "^24.41.0",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "react-router": "^7.14.1"
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",
@@ -45,7 +41,6 @@
     "@electron-toolkit/tsconfig": "^2.0.0",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^22.19.1",
-    "@types/node-xlsx": "^0.15.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
