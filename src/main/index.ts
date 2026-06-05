@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { runMigrations } from './database/database'
 import { BrowserManager } from './browser-manager'
 import { FBAutoposter } from './fb-autoposter'
+import { XAutoposter } from './x-autoposter'
 
 function createWindow(): void {
   // Create the browser window.
@@ -54,6 +55,7 @@ app.whenReady().then(() => {
 
   BrowserManager.registerHandlers()
   FBAutoposter.registerHandlers()
+  XAutoposter.registerHandlers()
 
   runMigrations().then(() => {
     createWindow()

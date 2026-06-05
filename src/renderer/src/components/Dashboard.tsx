@@ -35,7 +35,12 @@ export function Dashboard(): React.JSX.Element {
             <span>FB Autopost</span>
           </button>
 
-          <button className="btn btn-outline hover:btn-primary flex items-center gap-2 py-4 h-auto font-semibold transition-all duration-200 rounded-xl justify-center">
+          <button
+            onClick={(): void => {
+              navigate('/x-config')
+            }}
+            className="btn btn-outline hover:btn-primary flex items-center gap-2 py-4 h-auto font-semibold transition-all duration-200 rounded-xl justify-center"
+          >
             <svg
               className="w-5 h-5 shrink-0"
               viewBox="0 0 24 24"

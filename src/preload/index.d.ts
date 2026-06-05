@@ -13,6 +13,22 @@ type BotSettings = {
   mediaFilePaths: string
 }
 
+type XBotSettings = {
+  cookies: string
+  localStorage: string
+  postContent: string
+  searchQuery: string
+  mediaFilePaths: string
+}
+
+type XAPI = {
+  saveSettings: (settings: XBotSettings) => Promise<void>
+  getSettings: () => Promise<XBotSettings | null>
+  start: () => Promise<void>
+  stop: () => Promise<void>
+  onLog: (callback: (log: string) => void) => () => void
+}
+
 type FbAPI = {
   saveSettings: (settings: BotSettings) => Promise<void>
   getSettings: () => Promise<BotSettings | null>
@@ -29,6 +45,7 @@ declare global {
     api: {
       browser: BrowserAPI
       fb: FbAPI
+      x: XAPI
     }
   }
 }

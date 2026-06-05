@@ -37,6 +37,31 @@ const api = {
         ipcRenderer.removeListener('fb:log', listener)
       }
     }
+  },
+  x: {
+    saveSettings: (settings: {
+      cookies: string
+      localStorage: string
+      postContent: string
+      searchQuery: string
+      mediaFilePaths: string
+    }): Promise<void> => ipcRenderer.invoke('x:save-settings', settings),
+    getSettings: (): Promise<{
+      cookies: string
+      localStorage: string
+      postContent: string
+      searchQuery: string
+      mediaFilePaths: string
+    } | null> => ipcRenderer.invoke('x:get-settings'),
+    start: (): Promise<void> => ipcRenderer.invoke('x:start-autopost'),
+    stop: (): Promise<void> => ipcRenderer.invoke('x:stop-autopost'),
+    onLog: (callback: (log: string) => void): (() => void) => {
+      const listener = (_e: unknown, log: string): void => callback(log)
+      ipcRenderer.on('x:log', listener)
+      return (): void => {
+        ipcRenderer.removeListener('x:log', listener)
+      }
+    }
   }
 }
 
