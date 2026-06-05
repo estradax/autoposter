@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+@plugin "daisyui";
+
+@theme {
+  --animate-fade-in-up: fade-in-up 0.5s ease-out;
+  --animate-fade-out-up: fade-out-up 0.5s ease-in;
+
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-out-up {
+    0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+  }
+}
