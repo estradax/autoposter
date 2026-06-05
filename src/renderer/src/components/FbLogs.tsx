@@ -71,13 +71,37 @@ export function FbLogs(): React.JSX.Element {
               )}
             </div>
             <div className="flex justify-between items-center">
-              <button
-                className="btn btn-outline btn-sm"
-                disabled={isRunning}
-                onClick={(): void => setLogs([])}
-              >
-                Clear Terminal
-              </button>
+              <div className="flex gap-2">
+                <button
+                  className="btn btn-outline btn-sm"
+                  disabled={isRunning}
+                  onClick={(): void => setLogs([])}
+                >
+                  Clear Terminal
+                </button>
+                {isRunning && (
+                  <button
+                    className="btn btn-error btn-sm text-white"
+                    onClick={async (): Promise<void> => {
+                      setLogs((prev) => [
+                        ...prev,
+                        `[${new Date().toLocaleTimeString()}] Stopping automation...`
+                      ])
+                      try {
+                        await window.api.fb.stop()
+                      } catch (err: unknown) {
+                        const error = err as Error
+                        setLogs((prev) => [
+                          ...prev,
+                          `[${new Date().toLocaleTimeString()}] Error stopping: ${error.message}`
+                        ])
+                      }
+                    }}
+                  >
+                    Stop Automation
+                  </button>
+                )}
+              </div>
               {isRunning && (
                 <div className="flex gap-2 items-center text-xs text-base-content/50">
                   <span>Executing Puppeteer Tasks</span>

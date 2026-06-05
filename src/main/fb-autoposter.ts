@@ -22,6 +22,8 @@ interface CookieParam {
 
 export class FBAutoposter {
   private static isRunning = false
+  private static stopRequested = false
+  private static activeBrowser: Browser | null = null
 
   static registerHandlers(): void {
     ipcMain.handle('fb:save-settings', async (_, settings) => {
@@ -43,6 +45,19 @@ export class FBAutoposter {
       if (!window) throw new Error('No window found')
       return await this.run(window)
     })
+
+    ipcMain.handle('fb:stop-autopost', async () => {
+      this.stopRequested = true
+      if (this.activeBrowser) {
+        try {
+          await this.activeBrowser.close()
+        } catch {
+          // ignore
+        }
+        this.activeBrowser = null
+      }
+      this.isRunning = false
+    })
   }
 
   static async run(window: BrowserWindow): Promise<void> {
@@ -51,6 +66,7 @@ export class FBAutoposter {
     }
 
     this.isRunning = true
+    this.stopRequested = false
     const sendLog = (message: string): void => {
       if (!window.isDestroyed()) {
         window.webContents.send('fb:log', message)
@@ -83,6 +99,9 @@ export class FBAutoposter {
         args: ['--start-maximized'],
         defaultViewport: null
       })
+      this.activeBrowser = browser
+
+      if (this.stopRequested) throw new Error('Stop requested')
 
       const [page] = await browser.pages()
 
@@ -90,11 +109,15 @@ export class FBAutoposter {
       sendLog('Applying cookies and local storage items...')
       await this.applySession(browser, page, config.cookies, config.localStorage, sendLog)
 
+      if (this.stopRequested) throw new Error('Stop requested')
+
       // 5. Navigate to groups
       sendLog('Navigating to Facebook groups joined page...')
       await page.goto('https://web.facebook.com/groups/joins/?nav_source=tab', {
         waitUntil: 'networkidle2'
       })
+
+      if (this.stopRequested) throw new Error('Stop requested')
 
       // Wait for list items to load
       await page.waitForSelector('div[role="listitem"]')
@@ -103,6 +126,7 @@ export class FBAutoposter {
       sendLog('Scrolling to load all groups...')
       let lastHeight = (await page.evaluate('document.body.scrollHeight')) as number
       while (true) {
+        if (this.stopRequested) throw new Error('Stop requested')
         await page.evaluate('window.scrollTo(0, document.body.scrollHeight)')
         // Wait for potential new content to load
         await new Promise((resolve) => setTimeout(resolve, 2000))
@@ -113,6 +137,8 @@ export class FBAutoposter {
         }
         lastHeight = newHeight
       }
+
+      if (this.stopRequested) throw new Error('Stop requested')
 
       // Extract group links
       const groupLinks = await page.$$eval('a[aria-label="View group"]', (links) =>
@@ -131,13 +157,16 @@ export class FBAutoposter {
 
       // Loop through each group
       for (let i = 0; i < groupLinks.length; i++) {
+        if (this.stopRequested) throw new Error('Stop requested')
         const link = groupLinks[i]
         if (!link) continue
 
         sendLog(`[${i + 1}/${groupLinks.length}] Navigating to: ${link}`)
         try {
           await page.goto(link, { waitUntil: 'networkidle2' })
+          if (this.stopRequested) throw new Error('Stop requested')
           await new Promise((resolve) => setTimeout(resolve, 3000))
+          if (this.stopRequested) throw new Error('Stop requested')
 
           // Check if Buy/Sell group
           const isSellSomething = await page.evaluate(() => {
@@ -160,12 +189,16 @@ export class FBAutoposter {
             timeout: 5000
           })
 
+          if (this.stopRequested) throw new Error('Stop requested')
+
           if (writeButton) {
             await writeButton.click()
             await new Promise((resolve) => setTimeout(resolve, 2000))
+            if (this.stopRequested) throw new Error('Stop requested')
 
             sendLog('Typing message...')
             await page.keyboard.type(config.postContent, { delay: 100 })
+            if (this.stopRequested) throw new Error('Stop requested')
 
             // Handle Media uploads
             if (mediaPaths.length > 0) {
@@ -193,11 +226,15 @@ export class FBAutoposter {
               }
             }
 
+            if (this.stopRequested) throw new Error('Stop requested')
+
             // Click Post
             sendLog('Posting...')
             const postButton = await page.waitForSelector('div[aria-label="Post"][role="button"]', {
               timeout: 10000
             })
+
+            if (this.stopRequested) throw new Error('Stop requested')
 
             if (postButton) {
               await postButton.click()
@@ -211,18 +248,39 @@ export class FBAutoposter {
           }
         } catch (err: unknown) {
           const error = err as Error
+          if (
+            this.stopRequested ||
+            error.message.includes('Stop requested') ||
+            error.message.includes('Target closed') ||
+            error.message.includes('Navigation failed')
+          ) {
+            throw new Error('Stop requested')
+          }
           sendLog(`Error writing to group: ${error.message}`)
         }
       }
 
       sendLog('Automation completed!')
-      await browser.close()
+      if (browser) {
+        await browser.close()
+      }
     } catch (err: unknown) {
       const error = err as Error
-      sendLog(`Fatal Error: ${error.message}`)
-      throw error
+      if (
+        this.stopRequested ||
+        error.message.includes('Stop requested') ||
+        error.message.includes('Target closed') ||
+        error.message.includes('Navigation failed')
+      ) {
+        sendLog('Automation stopped by user.')
+      } else {
+        sendLog(`Fatal Error: ${error.message}`)
+        throw error
+      }
     } finally {
+      this.activeBrowser = null
       this.isRunning = false
+      this.stopRequested = false
     }
   }
 

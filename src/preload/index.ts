@@ -25,6 +25,7 @@ const api = {
       mediaFilePaths: string
     } | null> => ipcRenderer.invoke('fb:get-settings'),
     start: (): Promise<void> => ipcRenderer.invoke('fb:start-autopost'),
+    stop: (): Promise<void> => ipcRenderer.invoke('fb:stop-autopost'),
     onLog: (callback: (log: string) => void): (() => void) => {
       const listener = (_e: unknown, log: string): void => callback(log)
       ipcRenderer.on('fb:log', listener)

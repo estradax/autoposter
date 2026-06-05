@@ -17,6 +17,7 @@ type FbAPI = {
   saveSettings: (settings: BotSettings) => Promise<void>
   getSettings: () => Promise<BotSettings | null>
   start: () => Promise<void>
+  stop: () => Promise<void>
   onLog: (callback: (log: string) => void) => () => void
 }
 
