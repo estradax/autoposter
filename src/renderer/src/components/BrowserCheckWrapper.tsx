@@ -34,7 +34,7 @@ export function BrowserCheckWrapper({
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-base-200 to-base-300 gap-6 p-8">
         <div className="flex flex-col items-center gap-2">
-          <h1 className="text-4xl font-black tracking-tighter text-primary">Chromium Auto</h1>
+          <h1 className="text-4xl font-black tracking-tighter text-primary">One time setup</h1>
           <p className="text-base-content/60 text-sm font-medium uppercase tracking-widest">
             Initialization
           </p>

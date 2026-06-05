@@ -24,6 +24,7 @@ const api = {
       postContent: string
       mediaFilePaths: string
     } | null> => ipcRenderer.invoke('fb:get-settings'),
+    getFileData: (path: string): Promise<string> => ipcRenderer.invoke('fb:get-file-data', path),
     start: (): Promise<void> => ipcRenderer.invoke('fb:start-autopost'),
     stop: (): Promise<void> => ipcRenderer.invoke('fb:stop-autopost'),
     getPathForFile: (file: File): string => {

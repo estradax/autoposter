@@ -16,6 +16,7 @@ type BotSettings = {
 type FbAPI = {
   saveSettings: (settings: BotSettings) => Promise<void>
   getSettings: () => Promise<BotSettings | null>
+  getFileData: (path: string) => Promise<string>
   start: () => Promise<void>
   stop: () => Promise<void>
   getPathForFile: (file: File) => string

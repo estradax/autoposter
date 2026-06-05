@@ -6,6 +6,8 @@ import { BrowserManager } from './browser-manager'
 import { db } from './database/database'
 import { botConfigs } from './database/schema'
 import { eq } from 'drizzle-orm'
+import * as fs from 'fs'
+import * as path from 'path'
 
 puppeteer.use(StealthPlugin())
 
@@ -38,6 +40,26 @@ export class FBAutoposter {
     ipcMain.handle('fb:get-settings', async () => {
       const existing = await db.select().from(botConfigs).limit(1)
       return existing[0] || null
+    })
+
+    ipcMain.handle('fb:get-file-data', async (_, filePath: string) => {
+      try {
+        const ext = path.extname(filePath).toLowerCase()
+        let mimeType = 'image/jpeg'
+        if (ext === '.png') mimeType = 'image/png'
+        else if (ext === '.gif') mimeType = 'image/gif'
+        else if (ext === '.webp') mimeType = 'image/webp'
+        else if (ext === '.mp4') mimeType = 'video/mp4'
+        else if (ext === '.webm') mimeType = 'video/webm'
+        else if (ext === '.ogg') mimeType = 'video/ogg'
+        else if (ext === '.mov') mimeType = 'video/quicktime'
+
+        const data = await fs.promises.readFile(filePath)
+        return `data:${mimeType};base64,${data.toString('base64')}`
+      } catch (err) {
+        console.error('Error reading file for preview:', err)
+        return ''
+      }
     })
 
     ipcMain.handle('fb:start-autopost', async (event) => {
