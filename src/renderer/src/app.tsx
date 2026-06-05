@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { HashRouter, Routes, Route, useNavigate, useLocation } from 'react-router'
 
-export function App(): React.JSX.Element {
+interface MediaFileDetail {
+  name: string
+  path: string
+}
+
+function BrowserCheckWrapper({ children }: { children: React.ReactNode }): React.JSX.Element {
   const [isReady, setIsReady] = useState(false)
   const [progress, setProgress] = useState(0)
   const [status, setStatus] = useState('Checking requirements...')
@@ -66,6 +72,12 @@ export function App(): React.JSX.Element {
     )
   }
 
+  return <>{children}</>
+}
+
+function Dashboard(): React.JSX.Element {
+  const navigate = useNavigate()
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-base-300 p-6">
       <div className="card w-full max-w-md bg-base-100 shadow-2xl border border-base-content/5">
@@ -81,7 +93,12 @@ export function App(): React.JSX.Element {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <button className="btn btn-outline hover:btn-primary flex items-center gap-2 py-4 h-auto font-semibold transition-all duration-200 rounded-xl justify-center">
+            <button
+              onClick={(): void => {
+                navigate('/fb-config')
+              }}
+              className="btn btn-outline hover:btn-primary flex items-center gap-2 py-4 h-auto font-semibold transition-all duration-200 rounded-xl justify-center"
+            >
               <svg
                 className="w-5 h-5 shrink-0"
                 viewBox="0 0 24 24"
@@ -108,5 +125,286 @@ export function App(): React.JSX.Element {
         </div>
       </div>
     </div>
+  )
+}
+
+function FbConfig(): React.JSX.Element {
+  const navigate = useNavigate()
+
+  // FB settings state
+  const [cookies, setCookies] = useState('')
+  const [localStorageText, setLocalStorageText] = useState('')
+  const [postContent, setPostContent] = useState('')
+  const [selectedFiles, setSelectedFiles] = useState<MediaFileDetail[]>([])
+
+  useEffect(() => {
+    // Load config on mount
+    window.api.fb.getSettings().then((settings) => {
+      if (settings) {
+        setCookies(settings.cookies)
+        setLocalStorageText(settings.localStorage)
+        setPostContent(settings.postContent)
+        try {
+          const paths: string[] = JSON.parse(settings.mediaFilePaths || '[]')
+          const fileDetails = paths.map((p) => ({
+            name: p.split(/[\\/]/).pop() || p,
+            path: p
+          }))
+          setSelectedFiles(fileDetails)
+        } catch {
+          setSelectedFiles([])
+        }
+      }
+    })
+  }, [])
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    if (e.target.files) {
+      const details = Array.from(e.target.files)
+        .map((f: File) => ({
+          name: f.name,
+          path: (f as File & { path?: string }).path || ''
+        }))
+        .filter((f) => f.path !== '')
+
+      setSelectedFiles(details)
+    }
+  }
+
+  const saveSettings = async (): Promise<void> => {
+    try {
+      const filePathsString = JSON.stringify(selectedFiles.map((f) => f.path))
+      await window.api.fb.saveSettings({
+        cookies,
+        localStorage: localStorageText,
+        postContent,
+        mediaFilePaths: filePathsString
+      })
+      alert('Settings saved successfully!')
+    } catch (err: unknown) {
+      const error = err as Error
+      alert(`Error saving settings: ${error.message}`)
+    }
+  }
+
+  const startAutopost = async (): Promise<void> => {
+    // Automatically save settings first
+    const filePathsString = JSON.stringify(selectedFiles.map((f) => f.path))
+    await window.api.fb.saveSettings({
+      cookies,
+      localStorage: localStorageText,
+      postContent,
+      mediaFilePaths: filePathsString
+    })
+
+    // Navigate to terminal and trigger autoStart
+    navigate('/fb-logs', { state: { autoStart: true } })
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-base-300 p-6">
+      <div className="card w-full max-w-2xl bg-base-100 shadow-2xl border border-base-content/5">
+        <div className="card-body p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={(): void => {
+                  navigate('/')
+                }}
+                className="btn btn-sm btn-circle btn-ghost"
+              >
+                ❮
+              </button>
+              <h1 className="text-xl font-bold tracking-tight">FB Autopost Settings</h1>
+            </div>
+            <button
+              className="btn btn-sm btn-outline btn-neutral"
+              onClick={(): void => {
+                navigate('/fb-logs')
+              }}
+            >
+              View Logs
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-semibold">cookie.txt Raw Text</span>
+              </label>
+              <textarea
+                className="textarea textarea-bordered font-mono text-xs h-24"
+                placeholder="Paste contents of cookie.txt here (Tab separated Netscape format)"
+                value={cookies}
+                onChange={(e) => setCookies(e.target.value)}
+              />
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-semibold">localstorage.txt Raw Text</span>
+              </label>
+              <textarea
+                className="textarea textarea-bordered font-mono text-xs h-24"
+                placeholder="Paste contents of localstorage.txt here (Tab separated key-value format)"
+                value={localStorageText}
+                onChange={(e) => setLocalStorageText(e.target.value)}
+              />
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-semibold">Post Content Text</span>
+              </label>
+              <textarea
+                className="textarea textarea-bordered h-20"
+                placeholder="Type the post content you want the bot to publish..."
+                value={postContent}
+                onChange={(e) => setPostContent(e.target.value)}
+              />
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text font-semibold">Upload Images/Videos (Multiple)</span>
+              </label>
+              <input
+                type="file"
+                multiple
+                accept="image/*,video/*"
+                className="file-input file-input-bordered file-input-primary w-full"
+                onChange={handleFileChange}
+              />
+              {selectedFiles.length > 0 && (
+                <div className="mt-2 text-xs text-base-content/60 bg-base-200/50 p-3 rounded-xl border border-base-content/5">
+                  <p className="font-semibold mb-1">Selected Files:</p>
+                  <ul className="list-disc pl-5 max-h-24 overflow-y-auto">
+                    {selectedFiles.map((f, i) => (
+                      <li key={i} className="truncate">
+                        {f.name} <span className="text-gray-400">({f.path})</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 mt-4">
+              <button className="btn btn-outline flex-1" onClick={saveSettings}>
+                Save Settings
+              </button>
+              <button className="btn btn-primary flex-1 text-white" onClick={startAutopost}>
+                Save & Launch Bot
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function FbLogs(): React.JSX.Element {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const autoStart = (location.state as { autoStart?: boolean } | null)?.autoStart ?? false
+
+  const [isRunning, setIsRunning] = useState(false)
+  const [logs, setLogs] = useState<string[]>([])
+
+  useEffect(() => {
+    const cleanup = window.api.fb.onLog((log) => {
+      setLogs((prev) => [...prev, `[${new Date().toLocaleTimeString()}] ${log}`])
+    })
+
+    const triggerRun = async (): Promise<void> => {
+      setIsRunning(true)
+      setLogs(['Initializing FB Autobot automation...'])
+      try {
+        await window.api.fb.start()
+      } catch (err: unknown) {
+        const error = err as Error
+        setLogs((prev) => [...prev, `FATAL ERROR: ${error.message}`])
+      } finally {
+        setIsRunning(false)
+      }
+    }
+
+    if (autoStart) {
+      triggerRun()
+    }
+
+    return cleanup
+  }, [autoStart])
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-base-300 p-6">
+      <div className="card w-full max-w-2xl bg-base-100 shadow-2xl border border-base-content/5">
+        <div className="card-body p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={(): void => {
+                  navigate('/fb-config')
+                }}
+                disabled={isRunning}
+                className="btn btn-sm btn-circle btn-ghost"
+              >
+                ❮
+              </button>
+              <h1 className="text-xl font-bold tracking-tight">Automation Terminal</h1>
+            </div>
+            <span className={`badge ${isRunning ? 'badge-primary animate-pulse' : 'badge-ghost'}`}>
+              {isRunning ? 'Running' : 'Idle'}
+            </span>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <div className="mockup-code h-80 overflow-y-auto bg-neutral text-neutral-content text-xs p-4 rounded-xl">
+              {logs.length === 0 ? (
+                <pre data-prefix=">">
+                  <code>Terminal ready...</code>
+                </pre>
+              ) : (
+                logs.map((log, index) => (
+                  <pre key={index} data-prefix=">">
+                    <code>{log}</code>
+                  </pre>
+                ))
+              )}
+            </div>
+            <div className="flex justify-between items-center">
+              <button
+                className="btn btn-outline btn-sm"
+                disabled={isRunning}
+                onClick={(): void => setLogs([])}
+              >
+                Clear Terminal
+              </button>
+              {isRunning && (
+                <div className="flex gap-2 items-center text-xs text-base-content/50">
+                  <span>Executing Puppeteer Tasks</span>
+                  <span className="loading loading-dots loading-xs text-primary"></span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function App(): React.JSX.Element {
+  return (
+    <BrowserCheckWrapper>
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/fb-config" element={<FbConfig />} />
+          <Route path="/fb-logs" element={<FbLogs />} />
+        </Routes>
+      </HashRouter>
+    </BrowserCheckWrapper>
   )
 }

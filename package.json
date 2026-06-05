@@ -32,7 +32,8 @@
     "drizzle-orm": "^0.45.2",
     "puppeteer": "^24.41.0",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "react-router": "^7.17.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",

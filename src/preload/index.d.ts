@@ -6,11 +6,26 @@ type BrowserAPI = {
   onDownloadProgress: (callback: (percent: number) => void) => void
 }
 
+type BotSettings = {
+  cookies: string
+  localStorage: string
+  postContent: string
+  mediaFilePaths: string
+}
+
+type FbAPI = {
+  saveSettings: (settings: BotSettings) => Promise<void>
+  getSettings: () => Promise<BotSettings | null>
+  start: () => Promise<void>
+  onLog: (callback: (log: string) => void) => () => void
+}
+
 declare global {
   interface Window {
     electron: ElectronAPI
     api: {
       browser: BrowserAPI
+      fb: FbAPI
     }
   }
 }
