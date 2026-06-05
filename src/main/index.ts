@@ -3,7 +3,6 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { runMigrations } from './database/database'
-import { registerAutoUpdater } from './updater'
 import { BrowserManager } from './browser-manager'
 
 function createWindow(): void {
@@ -56,7 +55,6 @@ app.whenReady().then(() => {
 
   runMigrations().then(() => {
     createWindow()
-    registerAutoUpdater()
   })
 
   app.on('activate', function () {

@@ -30,7 +30,6 @@
     "@libsql/client": "^0.17.2",
     "@puppeteer/browsers": "^2.13.0",
     "drizzle-orm": "^0.45.2",
-    "electron-updater": "^6.3.9",
     "puppeteer": "^24.41.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
