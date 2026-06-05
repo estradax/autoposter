@@ -26,6 +26,7 @@ export class FBAutoposter {
   private static isRunning = false
   private static stopRequested = false
   private static activeBrowser: Browser | null = null
+  private static activePromise: Promise<void> | null = null
 
   static registerHandlers(): void {
     ipcMain.handle('fb:save-settings', async (_, settings) => {
@@ -79,23 +80,29 @@ export class FBAutoposter {
         this.activeBrowser = null
       }
       this.isRunning = false
+      this.activePromise = null
     })
   }
 
   static async run(window: BrowserWindow): Promise<void> {
     if (this.isRunning) {
+      if (this.activePromise) {
+        return this.activePromise
+      }
       throw new Error('Automation is already running')
     }
 
     this.isRunning = true
     this.stopRequested = false
-    const sendLog = (message: string): void => {
-      if (!window.isDestroyed()) {
-        window.webContents.send('fb:log', message)
-      }
-    }
 
-    try {
+    this.activePromise = (async () => {
+      const sendLog = (message: string): void => {
+        if (!window.isDestroyed()) {
+          window.webContents.send('fb:log', message)
+        }
+      }
+
+      try {
       // 1. Fetch configurations
       sendLog('Fetching configuration from database...')
       const configs = await db.select().from(botConfigs).limit(1)
@@ -362,7 +369,11 @@ export class FBAutoposter {
       this.activeBrowser = null
       this.isRunning = false
       this.stopRequested = false
+      this.activePromise = null
     }
+    })()
+
+    return this.activePromise
   }
 
   private static async applySession(
