@@ -1,24 +1,9 @@
-import { useEffect, useState, useRef } from 'react'
-
-interface LogMessage {
-  time: string
-  text: string
-  type: 'info' | 'success' | 'warning' | 'error'
-}
+import React, { useEffect, useState } from 'react'
 
 export function App(): React.JSX.Element {
   const [isReady, setIsReady] = useState(false)
   const [progress, setProgress] = useState(0)
   const [status, setStatus] = useState('Checking requirements...')
-  const [isRunning, setIsRunning] = useState(false)
-  const [logs, setLogs] = useState<LogMessage[]>([
-    {
-      time: new Date().toLocaleTimeString(),
-      text: 'System initialized. Ready for automation.',
-      type: 'info'
-    }
-  ])
-  const logsEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const checkBrowser = async (): Promise<void> => {
@@ -40,52 +25,6 @@ export function App(): React.JSX.Element {
 
     checkBrowser()
   }, [])
-
-  useEffect(() => {
-    if (logsEndRef.current) {
-      logsEndRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [logs])
-
-  const addLog = (text: string, type: LogMessage['type'] = 'info') => {
-    setLogs((prev) => [
-      ...prev,
-      {
-        time: new Date().toLocaleTimeString(),
-        text,
-        type
-      }
-    ])
-  }
-
-  const runTestAutomation = async () => {
-    if (isRunning) return
-    setIsRunning(true)
-    addLog('Starting test automation sequence...', 'info')
-    
-    // Simulate some automation logs to demonstrate integration
-    setTimeout(() => {
-      addLog('Launching Chromium instance...', 'info')
-    }, 1000)
-
-    setTimeout(() => {
-      addLog('Chromium launched successfully. Process ID: ' + Math.floor(Math.random() * 9000 + 1000), 'success')
-    }, 2500)
-
-    setTimeout(() => {
-      addLog('Navigating to target URL: https://example.com', 'info')
-    }, 4000)
-
-    setTimeout(() => {
-      addLog('Page loaded. Running custom content selectors...', 'info')
-    }, 5500)
-
-    setTimeout(() => {
-      addLog('Automation step completed successfully.', 'success')
-      addLog('Closing Chromium instance...', 'info')
-      setIsRunning(false)
-    }, 7000)
-  }
 
   if (!isReady) {
     return (
@@ -128,116 +67,46 @@ export function App(): React.JSX.Element {
   }
 
   return (
-    <div className="min-h-screen bg-base-200 flex flex-col p-6">
-      {/* Header */}
-      <header className="navbar bg-base-100 shadow-md rounded-2xl mb-6 px-6 border border-base-content/5 justify-between">
-        <div className="flex gap-2 items-center">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-content font-bold text-lg shadow-lg">
-            C
-          </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">Chromium Automation</h1>
-            <p className="text-xs text-base-content/50">Integration Template</p>
-          </div>
-        </div>
-        <div className="flex gap-3">
-          <div className="badge badge-success gap-1.5 py-3 px-4 font-semibold text-xs border border-success/20">
-            <span className="w-2 h-2 rounded-full bg-success-content animate-pulse"></span>
-            Chromium Ready
-          </div>
-          <div className="badge badge-outline gap-1.5 py-3 px-4 font-semibold text-xs border border-base-content/10">
-            <span className="w-2 h-2 rounded-full bg-success"></span>
-            SQLite Connected
-          </div>
-        </div>
-      </header>
-
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-        {/* Left Control Panel */}
-        <div className="flex flex-col gap-6 lg:col-span-1">
-          <div className="card bg-base-100 shadow-lg border border-base-content/5 flex-1">
-            <div className="card-body">
-              <h2 className="card-title text-base-content/80 text-lg mb-4">Automation Center</h2>
-              
-              <div className="flex flex-col gap-4">
-                <div className="bg-base-200/50 p-4 rounded-xl border border-base-content/5">
-                  <h3 className="font-semibold text-sm mb-1">Local Browser Info</h3>
-                  <p className="text-xs text-base-content/60 leading-relaxed">
-                    Chromium is fully integrated and managed via Puppeteer. Actions run inside an isolated sandbox with custom automation settings.
-                  </p>
-                </div>
-
-                <div className="bg-base-200/50 p-4 rounded-xl border border-base-content/5">
-                  <h3 className="font-semibold text-sm mb-2">Database Setup</h3>
-                  <p className="text-xs text-base-content/60 leading-relaxed">
-                    Drizzle ORM is active. Database migrations run automatically on startup. The schema configuration is ready for custom tables.
-                  </p>
-                </div>
-              </div>
-
-              <div className="card-actions mt-auto pt-6 flex flex-col gap-2">
-                <button 
-                  onClick={runTestAutomation}
-                  disabled={isRunning}
-                  className={`btn btn-primary w-full ${isRunning ? 'loading btn-disabled' : ''}`}
-                >
-                  {isRunning ? 'Running Script...' : 'Run Test Automation'}
-                </button>
-                
-                <button 
-                  onClick={() => setLogs([])}
-                  className="btn btn-outline btn-sm w-full mt-2"
-                >
-                  Clear Console Logs
-                </button>
-              </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-base-300 p-6">
+      <div className="card w-full max-w-md bg-base-100 shadow-2xl border border-base-content/5">
+        <div className="card-body p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-content font-black text-xl shadow-md">
+              AP
+            </div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight">Autopost Portal</h1>
+              <p className="text-xs text-base-content/50">Automation Dashboard</p>
             </div>
           </div>
-        </div>
 
-        {/* Right Output Log Console */}
-        <div className="lg:col-span-2 flex flex-col">
-          <div className="card bg-base-300 shadow-inner border border-base-content/10 flex-1 flex flex-col overflow-hidden">
-            <div className="bg-neutral px-6 py-3 border-b border-base-content/10 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-3.5 h-3.5 rounded-full bg-error inline-block"></span>
-                <span className="w-3.5 h-3.5 rounded-full bg-warning inline-block"></span>
-                <span className="w-3.5 h-3.5 rounded-full bg-success inline-block"></span>
-              </div>
-              <span className="text-xs font-mono text-neutral-content/60">terminal-output.log</span>
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            <button className="btn btn-outline hover:btn-primary flex items-center gap-2 py-4 h-auto font-semibold transition-all duration-200 rounded-xl justify-center">
+              <svg
+                className="w-5 h-5 shrink-0"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+              <span>FB Autopost</span>
+            </button>
 
-            <div className="p-6 font-mono text-xs flex-1 overflow-y-auto space-y-2.5 bg-neutral text-neutral-content leading-relaxed">
-              {logs.length === 0 ? (
-                <div className="text-neutral-content/40 italic">No output logs. Click 'Run Test Automation' to start.</div>
-              ) : (
-                logs.map((log, index) => {
-                  let colorClass = 'text-info-content'
-                  if (log.type === 'success') colorClass = 'text-success'
-                  if (log.type === 'warning') colorClass = 'text-warning'
-                  if (log.type === 'error') colorClass = 'text-error animate-pulse'
-
-                  return (
-                    <div key={index} className="flex gap-3 hover:bg-neutral-content/5 p-1 rounded transition-colors duration-150">
-                      <span className="text-neutral-content/30 select-none">[{log.time}]</span>
-                      <span className={colorClass}>{log.text}</span>
-                    </div>
-                  )
-                })
-              )}
-              <div ref={logsEndRef} />
-            </div>
+            <button className="btn btn-outline hover:btn-primary flex items-center gap-2 py-4 h-auto font-semibold transition-all duration-200 rounded-xl justify-center">
+              <svg
+                className="w-5 h-5 shrink-0"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              <span>X Autopost</span>
+            </button>
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="footer footer-center p-4 bg-base-100 text-base-content/50 rounded-xl mt-6 border border-base-content/5 text-xs">
-        <aside>
-          <p>Chromium Automation Template © {new Date().getFullYear()} — Electron & Drizzle Integration Ready</p>
-        </aside>
-      </footer>
     </div>
   )
 }
