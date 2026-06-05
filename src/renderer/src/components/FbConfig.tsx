@@ -39,10 +39,18 @@ export function FbConfig(): React.JSX.Element {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     if (e.target.files) {
       const details = Array.from(e.target.files)
-        .map((f: File) => ({
-          name: f.name,
-          path: (f as File & { path?: string }).path || ''
-        }))
+        .map((f: File) => {
+          let path = ''
+          try {
+            path = window.api.fb.getPathForFile(f)
+          } catch (err) {
+            console.error('Failed to get path for file:', err)
+          }
+          return {
+            name: f.name,
+            path
+          }
+        })
         .filter((f) => f.path !== '')
 
       setSelectedFiles(details)

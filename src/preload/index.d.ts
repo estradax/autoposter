@@ -18,6 +18,7 @@ type FbAPI = {
   getSettings: () => Promise<BotSettings | null>
   start: () => Promise<void>
   stop: () => Promise<void>
+  getPathForFile: (file: File) => string
   onLog: (callback: (log: string) => void) => () => void
 }
 

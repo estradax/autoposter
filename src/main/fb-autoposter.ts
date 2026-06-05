@@ -203,13 +203,72 @@ export class FBAutoposter {
             // Handle Media uploads
             if (mediaPaths.length > 0) {
               sendLog(`Uploading ${mediaPaths.length} media file(s)...`)
-              const fileInputHandle = await page.evaluateHandle(() => {
-                return Array.from(document.querySelectorAll('input[type="file"].x1s85apg')).find(
-                  (input) => !input.closest('[aria-hidden="true"]')
+              
+              let fileInputHandle = await page.evaluateHandle(() => {
+                // 1. Try specific class name first
+                let input = Array.from(document.querySelectorAll('input[type="file"].x1s85apg')).find(
+                  (i) => !i.closest('[aria-hidden="true"]')
                 )
+                if (!input) {
+                  // 2. Try generic image/video file inputs that are not aria-hidden
+                  input = Array.from(document.querySelectorAll('input[type="file"]')).find((i) => {
+                    const accept = i.getAttribute('accept') || ''
+                    return !i.closest('[aria-hidden="true"]') && (accept.includes('image') || accept.includes('video'))
+                  })
+                }
+                if (!input) {
+                  // 3. Try any visible file input
+                  input = Array.from(document.querySelectorAll('input[type="file"]')).find(
+                    (i) => !i.closest('[aria-hidden="true"]')
+                  )
+                }
+                return input
               })
-              const fileInput =
-                fileInputHandle.asElement() as ElementHandle<HTMLInputElement> | null
+              let fileInput = fileInputHandle.asElement() as ElementHandle<HTMLInputElement> | null
+
+              if (!fileInput) {
+                sendLog('File input not found immediately. Attempting to click "Photo/video" button to activate the uploader...')
+                const clicked = await page.evaluate(() => {
+                  const buttons = Array.from(document.querySelectorAll('div[role="button"]'))
+                  const photoBtn = buttons.find((btn) => {
+                    const text = btn.textContent || ''
+                    const label = btn.getAttribute('aria-label') || ''
+                    return (
+                      text.toLowerCase().includes('photo/video') ||
+                      label.toLowerCase().includes('photo/video')
+                    )
+                  })
+                  if (photoBtn) {
+                    ;(photoBtn as HTMLElement).click()
+                    return true
+                  }
+                  return false
+                })
+
+                if (clicked) {
+                  sendLog('Clicked "Photo/video" button, waiting for the uploader component to mount...')
+                  await new Promise((resolve) => setTimeout(resolve, 2500))
+                  
+                  fileInputHandle = await page.evaluateHandle(() => {
+                    let input = Array.from(document.querySelectorAll('input[type="file"].x1s85apg')).find(
+                      (i) => !i.closest('[aria-hidden="true"]')
+                    )
+                    if (!input) {
+                      input = Array.from(document.querySelectorAll('input[type="file"]')).find((i) => {
+                        const accept = i.getAttribute('accept') || ''
+                        return !i.closest('[aria-hidden="true"]') && (accept.includes('image') || accept.includes('video'))
+                      })
+                    }
+                    if (!input) {
+                      input = Array.from(document.querySelectorAll('input[type="file"]')).find(
+                        (i) => !i.closest('[aria-hidden="true"]')
+                      )
+                    }
+                    return input
+                  })
+                  fileInput = fileInputHandle.asElement() as ElementHandle<HTMLInputElement> | null
+                }
+              }
 
               if (fileInput) {
                 await fileInput.uploadFile(...mediaPaths)
@@ -219,7 +278,7 @@ export class FBAutoposter {
                     el.dispatchEvent(new Event('input', { bubbles: true }))
                   }
                 }, fileInput)
-                sendLog('Media uploaded, waiting for thumbnails...')
+                sendLog('Media uploaded, waiting for thumbnails to process...')
                 await new Promise((resolve) => setTimeout(resolve, 6000))
               } else {
                 sendLog('Could not locate file input element for uploading.')

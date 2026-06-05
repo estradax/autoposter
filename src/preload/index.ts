@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
@@ -26,6 +26,9 @@ const api = {
     } | null> => ipcRenderer.invoke('fb:get-settings'),
     start: (): Promise<void> => ipcRenderer.invoke('fb:start-autopost'),
     stop: (): Promise<void> => ipcRenderer.invoke('fb:stop-autopost'),
+    getPathForFile: (file: File): string => {
+      return webUtils.getPathForFile(file)
+    },
     onLog: (callback: (log: string) => void): (() => void) => {
       const listener = (_e: unknown, log: string): void => callback(log)
       ipcRenderer.on('fb:log', listener)
