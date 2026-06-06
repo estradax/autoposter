@@ -51,7 +51,7 @@ npmRebuild: false
 publish:
   provider: github
   owner: estradax
-  repo: mapsleads
+  repo: autoposter
 extraResources:
   - from: drizzle
     to: drizzle
