@@ -123,62 +123,79 @@ export function FbLogs(): React.JSX.Element {
     const selectedCount = Object.values(selectedUrls).filter(Boolean).length
 
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-base-300 to-base-200 p-6">
-        <div className="w-full max-w-xl bg-base-100 rounded-3xl shadow-xl border border-base-content/5 p-6 flex flex-col gap-6 max-h-[85vh]">
+      <div className="flex flex-col min-h-screen w-full bg-base-100 p-8 max-h-screen overflow-hidden">
+        <div className="flex-1 flex flex-col gap-6 h-full max-h-full w-full mx-auto">
           {/* Header */}
-          <div className="flex flex-col gap-1.5 border-b border-base-content/10 pb-4">
-            <h2 className="text-2xl font-black tracking-tight text-base-content flex items-center gap-2 justify-center">
-              <span>👥</span> Select Groups to Post
-            </h2>
-            <p className="text-xs text-base-content/60 font-medium">
-              We found {groups.length} groups. Choose which ones you want to post to.
-            </p>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-base-content/10 pb-5">
+            <div>
+              <h2 className="text-2xl font-black tracking-tight text-base-content flex items-center gap-2">
+                <span>👥</span> Select Groups to Post
+              </h2>
+              <p className="text-xs text-base-content/60 font-medium mt-1">
+                We found {groups.length} groups. Choose which ones you want to post to.
+              </p>
+            </div>
+
+            {/* Action buttons in header to save space */}
+            <div className="flex gap-3">
+              <button onClick={handleCancel} className="btn btn-outline btn-error px-6 rounded-xl">
+                Cancel
+              </button>
+              <button
+                onClick={handleStartPosting}
+                className="btn btn-primary text-white px-8 rounded-xl shadow-lg shadow-primary/20"
+                disabled={selectedCount === 0}
+              >
+                Start Posting ({selectedCount})
+              </button>
+            </div>
           </div>
 
-          {/* Search bar */}
-          <div className="form-control">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search groups by name..."
-                className="input input-bordered w-full pr-10 focus:input-primary text-sm rounded-xl"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <span className="absolute inset-y-0 right-3 flex items-center text-base-content/30 pointer-events-none">
-                🔍
+          {/* Search bar and selection helpers */}
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="form-control w-full md:max-w-md">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search groups by name..."
+                  className="input input-bordered w-full pr-10 focus:input-primary text-sm rounded-xl"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <span className="absolute inset-y-0 right-3 flex items-center text-base-content/30 pointer-events-none">
+                  🔍
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 justify-between w-full md:w-auto text-xs">
+              <span className="font-semibold text-base-content/70">
+                Selected: <span className="text-primary font-bold">{selectedCount}</span> /{' '}
+                {groups.length}
               </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleSelectAll}
+                  className="btn btn-xs btn-outline btn-primary rounded-lg px-3 py-1"
+                >
+                  Select All
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeselectAll}
+                  className="btn btn-xs btn-outline rounded-lg px-3 py-1"
+                >
+                  Deselect All
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Selection helpers */}
-          <div className="flex justify-between items-center text-xs">
-            <span className="font-semibold text-base-content/70">
-              Selected: <span className="text-primary font-bold">{selectedCount}</span> /{' '}
-              {groups.length}
-            </span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleSelectAll}
-                className="btn btn-xs btn-outline btn-primary rounded-lg px-2.5"
-              >
-                Select All
-              </button>
-              <button
-                type="button"
-                onClick={handleDeselectAll}
-                className="btn btn-xs btn-outline rounded-lg px-2.5"
-              >
-                Deselect All
-              </button>
-            </div>
-          </div>
-
-          {/* Group Checklist */}
-          <div className="flex-1 overflow-y-auto border border-base-content/10 rounded-2xl bg-base-200/30 p-2 flex flex-col gap-1">
+          {/* Group Checklist - Full width borderless list */}
+          <div className="flex-1 overflow-y-auto border-t border-base-content/10 flex flex-col">
             {filteredGroups.length === 0 ? (
-              <div className="p-8 text-center text-sm text-base-content/40 font-medium">
+              <div className="p-12 text-center text-sm text-base-content/40 font-medium">
                 No groups found matching "{searchTerm}"
               </div>
             ) : (
@@ -187,10 +204,8 @@ export function FbLogs(): React.JSX.Element {
                 return (
                   <label
                     key={group.url}
-                    className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-base-200 transition-all duration-150 border ${
-                      isChecked
-                        ? 'border-primary/20 bg-primary/5 hover:bg-primary/10'
-                        : 'border-transparent'
+                    className={`flex items-center gap-4 py-4 px-3 cursor-pointer hover:bg-base-200/40 border-b border-base-content/5 transition-all duration-150 ${
+                      isChecked ? 'bg-primary/5' : ''
                     }`}
                   >
                     <input
@@ -203,29 +218,14 @@ export function FbLogs(): React.JSX.Element {
                       <span className="text-sm font-bold text-base-content truncate">
                         {group.name}
                       </span>
-                      <span className="text-[10px] text-base-content/40 truncate">{group.url}</span>
+                      <span className="text-xs text-base-content/45 truncate mt-0.5">
+                        {group.url}
+                      </span>
                     </div>
                   </label>
                 )
               })
             )}
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <button
-              onClick={handleCancel}
-              className="btn btn-outline btn-error flex-1 rounded-xl order-2 sm:order-1"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleStartPosting}
-              className="btn btn-primary text-white flex-1 rounded-xl order-1 sm:order-2 shadow-lg shadow-primary/20"
-              disabled={selectedCount === 0}
-            >
-              Start Posting ({selectedCount})
-            </button>
           </div>
         </div>
       </div>
