@@ -27,6 +27,7 @@ const api = {
     getFileData: (path: string): Promise<string> => ipcRenderer.invoke('fb:get-file-data', path),
     start: (): Promise<void> => ipcRenderer.invoke('fb:start-autopost'),
     stop: (): Promise<void> => ipcRenderer.invoke('fb:stop-autopost'),
+    selectGroups: (urls: string[]): Promise<void> => ipcRenderer.invoke('fb:select-groups', urls),
     getPathForFile: (file: File): string => {
       return webUtils.getPathForFile(file)
     },
@@ -35,6 +36,14 @@ const api = {
       ipcRenderer.on('fb:log', listener)
       return (): void => {
         ipcRenderer.removeListener('fb:log', listener)
+      }
+    },
+    onGroupsLoaded: (callback: (groups: { url: string; name: string }[]) => void): (() => void) => {
+      const listener = (_e: unknown, groups: { url: string; name: string }[]): void =>
+        callback(groups)
+      ipcRenderer.on('fb:groups-loaded', listener)
+      return (): void => {
+        ipcRenderer.removeListener('fb:groups-loaded', listener)
       }
     }
   },

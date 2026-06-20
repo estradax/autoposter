@@ -138,7 +138,9 @@ export class XAutoposter {
             timeout: 15000
           })
         } catch (error) {
-          throw new Error('Could not find any tweets in the timeline. Make sure you are logged in and search returned results.')
+          throw new Error(
+            'Could not find any tweets in the timeline. Make sure you are logged in and search returned results.'
+          )
         }
 
         const processedTweetIds = new Set<string>()
@@ -150,7 +152,9 @@ export class XAutoposter {
           if (this.stopRequested) throw new Error('Stop requested')
 
           const currentTweets = await page.$$(tweetSelector)
-          sendLog(`Currently visible: ${currentTweets.length} tweets. Total replied: ${totalReplied}/${maxReplies}`)
+          sendLog(
+            `Currently visible: ${currentTweets.length} tweets. Total replied: ${totalReplied}/${maxReplies}`
+          )
 
           for (const tweet of currentTweets) {
             if (this.stopRequested) throw new Error('Stop requested')
@@ -231,7 +235,8 @@ export class XAutoposter {
 
                 // Wait specifically for the tweet/reply button to be enabled
                 sendLog('Waiting for tweet/reply button to be enabled...')
-                const tweetButtonSelector = '[data-testid="tweetButton"], [data-testid="tweetButtonInline"]'
+                const tweetButtonSelector =
+                  '[data-testid="tweetButton"], [data-testid="tweetButtonInline"]'
 
                 await page.waitForFunction(
                   (selector) => {

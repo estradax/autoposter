@@ -29,6 +29,11 @@ type XAPI = {
   onLog: (callback: (log: string) => void) => () => void
 }
 
+type FbGroup = {
+  url: string
+  name: string
+}
+
 type FbAPI = {
   saveSettings: (settings: BotSettings) => Promise<void>
   getSettings: () => Promise<BotSettings | null>
@@ -37,6 +42,8 @@ type FbAPI = {
   stop: () => Promise<void>
   getPathForFile: (file: File) => string
   onLog: (callback: (log: string) => void) => () => void
+  selectGroups: (urls: string[]) => Promise<void>
+  onGroupsLoaded: (callback: (groups: FbGroup[]) => void) => () => void
 }
 
 declare global {

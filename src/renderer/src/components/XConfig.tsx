@@ -19,7 +19,8 @@ function MediaPreview({
 
   useEffect(() => {
     let active = true
-    window.api.fb.getFileData(file.path)
+    window.api.fb
+      .getFileData(file.path)
       .then((data) => {
         if (active) {
           if (data) {
@@ -179,7 +180,9 @@ export function XConfig(): React.JSX.Element {
           </button>
           <div>
             <h1 className="text-xl font-bold tracking-tight">X Autopost Settings</h1>
-            <p className="text-xs text-base-content/50 mt-0.5">Configure X/Twitter automation credentials, search query, and reply template</p>
+            <p className="text-xs text-base-content/50 mt-0.5">
+              Configure X/Twitter automation credentials, search query, and reply template
+            </p>
           </div>
         </div>
 
@@ -209,9 +212,7 @@ export function XConfig(): React.JSX.Element {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-base-content/85">
-              Search Query
-            </label>
+            <label className="text-sm font-semibold text-base-content/85">Search Query</label>
             <input
               type="text"
               className="input input-bordered focus:input-primary transition-all duration-200"
@@ -256,7 +257,8 @@ export function XConfig(): React.JSX.Element {
                     />
                   </svg>
                   <p className="text-xs text-base-content/70">
-                    <span className="font-semibold text-primary">Click to upload</span> or drag and drop
+                    <span className="font-semibold text-primary">Click to upload</span> or drag and
+                    drop
                   </p>
                   <p className="text-[10px] text-base-content/40 mt-0.5">Images & Videos</p>
                 </div>
@@ -272,7 +274,9 @@ export function XConfig(): React.JSX.Element {
 
             {selectedFiles.length > 0 && (
               <div className="mt-3 flex flex-col gap-2">
-                <p className="text-xs font-semibold text-base-content/70">Selected Assets ({selectedFiles.length})</p>
+                <p className="text-xs font-semibold text-base-content/70">
+                  Selected Assets ({selectedFiles.length})
+                </p>
                 <div className="grid grid-cols-4 sm:grid-cols-5 gap-3 max-h-56 overflow-y-auto p-2 bg-base-200/50 rounded-xl border border-base-content/5">
                   {selectedFiles.map((file, index) => (
                     <MediaPreview
@@ -289,10 +293,16 @@ export function XConfig(): React.JSX.Element {
           </div>
 
           <div className="flex gap-4 mt-6">
-            <button className="btn btn-outline flex-1 rounded-xl transition-all duration-200" onClick={saveSettings}>
+            <button
+              className="btn btn-outline flex-1 rounded-xl transition-all duration-200"
+              onClick={saveSettings}
+            >
               Save Settings
             </button>
-            <button className="btn btn-primary flex-1 text-white rounded-xl transition-all duration-200" onClick={startAutopost}>
+            <button
+              className="btn btn-primary flex-1 text-white rounded-xl transition-all duration-200"
+              onClick={startAutopost}
+            >
               Save & Launch Bot
             </button>
           </div>

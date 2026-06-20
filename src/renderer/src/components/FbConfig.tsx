@@ -19,7 +19,8 @@ function MediaPreview({
 
   useEffect(() => {
     let active = true
-    window.api.fb.getFileData(file.path)
+    window.api.fb
+      .getFileData(file.path)
       .then((data) => {
         if (active) {
           if (data) {
@@ -165,119 +166,128 @@ export function FbConfig(): React.JSX.Element {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-base-200 to-base-300 p-6">
       <div className="w-full max-w-2xl flex flex-col gap-6">
         <div className="flex items-center gap-3 pb-4 border-b border-base-content/10">
-            <button
-              onClick={(): void => {
-                navigate('/')
-              }}
-              className="btn btn-sm btn-circle btn-ghost"
-            >
-              ❮
-            </button>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight">FB Autopost Settings</h1>
-              <p className="text-xs text-base-content/50 mt-0.5">Configure automation credentials and target content</p>
-            </div>
+          <button
+            onClick={(): void => {
+              navigate('/')
+            }}
+            className="btn btn-sm btn-circle btn-ghost"
+          >
+            ❮
+          </button>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">FB Autopost Settings</h1>
+            <p className="text-xs text-base-content/50 mt-0.5">
+              Configure automation credentials and target content
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-base-content/85">
+              cookie.txt Raw Text
+            </label>
+            <textarea
+              className="textarea textarea-bordered font-mono text-xs h-24 focus:textarea-primary transition-all duration-200"
+              placeholder="Paste contents of cookie.txt here (Tab separated Netscape format)"
+              value={cookies}
+              onChange={(e) => setCookies(e.target.value)}
+            />
           </div>
 
-          <div className="flex flex-col gap-5">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-base-content/85">
-                cookie.txt Raw Text
-              </label>
-              <textarea
-                className="textarea textarea-bordered font-mono text-xs h-24 focus:textarea-primary transition-all duration-200"
-                placeholder="Paste contents of cookie.txt here (Tab separated Netscape format)"
-                value={cookies}
-                onChange={(e) => setCookies(e.target.value)}
-              />
-            </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-base-content/85">
+              localstorage.txt Raw Text
+            </label>
+            <textarea
+              className="textarea textarea-bordered font-mono text-xs h-24 focus:textarea-primary transition-all duration-200"
+              placeholder="Paste contents of localstorage.txt here (Tab separated key-value format)"
+              value={localStorageText}
+              onChange={(e) => setLocalStorageText(e.target.value)}
+            />
+          </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-base-content/85">
-                localstorage.txt Raw Text
-              </label>
-              <textarea
-                className="textarea textarea-bordered font-mono text-xs h-24 focus:textarea-primary transition-all duration-200"
-                placeholder="Paste contents of localstorage.txt here (Tab separated key-value format)"
-                value={localStorageText}
-                onChange={(e) => setLocalStorageText(e.target.value)}
-              />
-            </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-base-content/85">Post Content Text</label>
+            <textarea
+              className="textarea textarea-bordered h-20 focus:textarea-primary transition-all duration-200"
+              placeholder="Type the post content you want the bot to publish..."
+              value={postContent}
+              onChange={(e) => setPostContent(e.target.value)}
+            />
+          </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-base-content/85">
-                Post Content Text
-              </label>
-              <textarea
-                className="textarea textarea-bordered h-20 focus:textarea-primary transition-all duration-200"
-                placeholder="Type the post content you want the bot to publish..."
-                value={postContent}
-                onChange={(e) => setPostContent(e.target.value)}
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-base-content/85">
-                Upload Images/Videos (Multiple)
-              </label>
-              <div className="flex items-center justify-center w-full">
-                <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-base-content/20 rounded-2xl cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
-                  <div className="flex flex-col items-center justify-center pt-4 pb-4 text-center px-4">
-                    <svg
-                      className="w-8 h-8 mb-2 text-base-content/40"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 20 16"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                      />
-                    </svg>
-                    <p className="text-xs text-base-content/70">
-                      <span className="font-semibold text-primary">Click to upload</span> or drag and drop
-                    </p>
-                    <p className="text-[10px] text-base-content/40 mt-0.5">Images & Videos</p>
-                  </div>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*,video/*"
-                    className="hidden"
-                    onChange={handleFileChange}
-                  />
-                </label>
-              </div>
-
-              {selectedFiles.length > 0 && (
-                <div className="mt-3 flex flex-col gap-2">
-                  <p className="text-xs font-semibold text-base-content/70">Selected Assets ({selectedFiles.length})</p>
-                  <div className="grid grid-cols-4 sm:grid-cols-5 gap-3 max-h-56 overflow-y-auto p-2 bg-base-200/50 rounded-xl border border-base-content/5">
-                    {selectedFiles.map((file, index) => (
-                      <MediaPreview
-                        key={index}
-                        file={file}
-                        onRemove={(): void => {
-                          setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
-                        }}
-                      />
-                    ))}
-                  </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-base-content/85">
+              Upload Images/Videos (Multiple)
+            </label>
+            <div className="flex items-center justify-center w-full">
+              <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-base-content/20 rounded-2xl cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all duration-300">
+                <div className="flex flex-col items-center justify-center pt-4 pb-4 text-center px-4">
+                  <svg
+                    className="w-8 h-8 mb-2 text-base-content/40"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 16"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                    />
+                  </svg>
+                  <p className="text-xs text-base-content/70">
+                    <span className="font-semibold text-primary">Click to upload</span> or drag and
+                    drop
+                  </p>
+                  <p className="text-[10px] text-base-content/40 mt-0.5">Images & Videos</p>
                 </div>
-              )}
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
             </div>
 
-            <div className="flex gap-4 mt-6">
-              <button className="btn btn-outline flex-1 rounded-xl transition-all duration-200" onClick={saveSettings}>
-                Save Settings
-              </button>
-              <button className="btn btn-primary flex-1 text-white rounded-xl transition-all duration-200" onClick={startAutopost}>
-                Save & Launch Bot
-              </button>
+            {selectedFiles.length > 0 && (
+              <div className="mt-3 flex flex-col gap-2">
+                <p className="text-xs font-semibold text-base-content/70">
+                  Selected Assets ({selectedFiles.length})
+                </p>
+                <div className="grid grid-cols-4 sm:grid-cols-5 gap-3 max-h-56 overflow-y-auto p-2 bg-base-200/50 rounded-xl border border-base-content/5">
+                  {selectedFiles.map((file, index) => (
+                    <MediaPreview
+                      key={index}
+                      file={file}
+                      onRemove={(): void => {
+                        setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-4 mt-6">
+            <button
+              className="btn btn-outline flex-1 rounded-xl transition-all duration-200"
+              onClick={saveSettings}
+            >
+              Save Settings
+            </button>
+            <button
+              className="btn btn-primary flex-1 text-white rounded-xl transition-all duration-200"
+              onClick={startAutopost}
+            >
+              Save & Launch Bot
+            </button>
           </div>
         </div>
       </div>

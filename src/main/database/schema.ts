@@ -16,4 +16,3 @@ export const xBotConfigs = sqliteTable('x_bot_configs', {
   searchQuery: text('search_query').notNull(),
   mediaFilePaths: text('media_file_paths').notNull()
 })
-
