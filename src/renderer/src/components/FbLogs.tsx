@@ -123,8 +123,8 @@ export function FbLogs(): React.JSX.Element {
     const selectedCount = Object.values(selectedUrls).filter(Boolean).length
 
     return (
-      <div className="flex flex-col min-h-screen w-full bg-base-100 p-8 max-h-screen overflow-hidden">
-        <div className="flex-1 flex flex-col gap-6 h-full max-h-full w-full mx-auto">
+      <div className="flex flex-col h-screen w-full bg-base-100 p-8 overflow-hidden">
+        <div className="flex-1 flex flex-col gap-6 min-h-0 w-full mx-auto">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-base-content/10 pb-5">
             <div>
@@ -193,7 +193,7 @@ export function FbLogs(): React.JSX.Element {
           </div>
 
           {/* Group Checklist - Full width borderless list */}
-          <div className="flex-1 overflow-y-auto border-t border-base-content/10 flex flex-col">
+          <div className="flex-1 overflow-y-auto border-t border-base-content/10 flex flex-col min-h-0">
             {filteredGroups.length === 0 ? (
               <div className="p-12 text-center text-sm text-base-content/40 font-medium">
                 No groups found matching "{searchTerm}"
