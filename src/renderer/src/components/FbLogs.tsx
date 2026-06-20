@@ -33,11 +33,28 @@ export function FbLogs(): React.JSX.Element {
 
     const cleanupGroups = window.api.fb.onGroupsLoaded((loadedGroups) => {
       setGroups(loadedGroups)
-      // Check all by default
+
+      const savedUrlsStr = localStorage.getItem('fb_selected_group_urls')
       const initialSelection: Record<string, boolean> = {}
-      loadedGroups.forEach((g) => {
-        initialSelection[g.url] = true
-      })
+
+      if (savedUrlsStr) {
+        try {
+          const savedUrls: string[] = JSON.parse(savedUrlsStr)
+          const savedSet = new Set(savedUrls)
+          loadedGroups.forEach((g) => {
+            initialSelection[g.url] = savedSet.has(g.url)
+          })
+        } catch {
+          loadedGroups.forEach((g) => {
+            initialSelection[g.url] = true
+          })
+        }
+      } else {
+        // Check all by default
+        loadedGroups.forEach((g) => {
+          initialSelection[g.url] = true
+        })
+      }
       setSelectedUrls(initialSelection)
       setIsSelecting(true)
     })
@@ -78,26 +95,51 @@ export function FbLogs(): React.JSX.Element {
   }
 
   const handleToggle = (url: string): void => {
-    setSelectedUrls((prev) => ({
-      ...prev,
-      [url]: !prev[url]
-    }))
+    setSelectedUrls((prev) => {
+      const next = {
+        ...prev,
+        [url]: !prev[url]
+      }
+      const urls = Object.keys(next).filter((u) => next[u])
+      localStorage.setItem('fb_selected_group_urls', JSON.stringify(urls))
+      return next
+    })
   }
 
   const handleSelectAll = (): void => {
-    const newSelection: Record<string, boolean> = {}
-    groups?.forEach((g) => {
-      newSelection[g.url] = true
+    if (!groups) return
+    const filtered = groups.filter(
+      (g) =>
+        g.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        g.url.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    setSelectedUrls((prev) => {
+      const next = { ...prev }
+      filtered.forEach((g) => {
+        next[g.url] = true
+      })
+      const urls = Object.keys(next).filter((u) => next[u])
+      localStorage.setItem('fb_selected_group_urls', JSON.stringify(urls))
+      return next
     })
-    setSelectedUrls(newSelection)
   }
 
   const handleDeselectAll = (): void => {
-    const newSelection: Record<string, boolean> = {}
-    groups?.forEach((g) => {
-      newSelection[g.url] = false
+    if (!groups) return
+    const filtered = groups.filter(
+      (g) =>
+        g.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        g.url.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    setSelectedUrls((prev) => {
+      const next = { ...prev }
+      filtered.forEach((g) => {
+        next[g.url] = false
+      })
+      const urls = Object.keys(next).filter((u) => next[u])
+      localStorage.setItem('fb_selected_group_urls', JSON.stringify(urls))
+      return next
     })
-    setSelectedUrls(newSelection)
   }
 
   const handleStartPosting = async (): Promise<void> => {
@@ -106,6 +148,7 @@ export function FbLogs(): React.JSX.Element {
       alert('Please select at least one group to post to.')
       return
     }
+    localStorage.setItem('fb_selected_group_urls', JSON.stringify(urls))
     setIsSelecting(false)
     try {
       await window.api.fb.selectGroups(urls)
@@ -196,7 +239,7 @@ export function FbLogs(): React.JSX.Element {
           <div className="flex-1 overflow-y-auto border-t border-base-content/10 flex flex-col min-h-0">
             {filteredGroups.length === 0 ? (
               <div className="p-12 text-center text-sm text-base-content/40 font-medium">
-                No groups found matching "{searchTerm}"
+                No groups found matching &quot;{searchTerm}&quot;
               </div>
             ) : (
               filteredGroups.map((group) => {
